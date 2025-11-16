@@ -1,0 +1,30 @@
+{
+  "name": "typing-game",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "images:verify": "node scripts/verify-images.js",
+    "images:verify:pending": "node scripts/verify-images.js --pending-only",
+    "images:generate": "node scripts/generate-images.js",
+    "images:update": "node scripts/update-images.js"
+  },
+  "dependencies": {
+    "vue": "^3.4.21"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "@vue/test-utils": "^2.4.6",
+    "dotenv": "^16.6.1",
+    "form-data": "^4.0.4",
+    "jsdom": "^24.0.0",
+    "sharp": "^0.33.5",
+    "vite": "^5.1.4",
+    "vitest": "^1.3.1"
+  }
+}
