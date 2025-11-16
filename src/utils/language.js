@@ -6,6 +6,9 @@ export const SUPPORTED_LANGUAGES = {
 
 export const DEFAULT_LANGUAGE = 'en'
 
+// In-memory storage for language preference (replaces localStorage)
+let currentLanguagePreference = null
+
 /**
  * Detects browser language and returns supported locale
  * @returns {string} Language code (en or pt)
@@ -31,33 +34,26 @@ export function detectBrowserLanguage() {
 }
 
 /**
- * Gets the current language from localStorage or detects from browser
+ * Gets the current language from memory or detects from browser
  * @returns {string} Language code
  */
 export function getCurrentLanguage() {
-  if (typeof localStorage === 'undefined') {
-    return detectBrowserLanguage()
+  // Return stored preference if available
+  if (currentLanguagePreference && (currentLanguagePreference === 'en' || currentLanguagePreference === 'pt')) {
+    return currentLanguagePreference
   }
 
-  const stored = localStorage.getItem('typing-game-language')
-  if (stored && (stored === 'en' || stored === 'pt')) {
-    return stored
-  }
-
+  // Otherwise detect from browser
   return detectBrowserLanguage()
 }
 
 /**
- * Saves language preference to localStorage
+ * Saves language preference to memory
  * @param {string} langCode - Language code to save
  */
 export function saveLanguagePreference(langCode) {
-  if (typeof localStorage === 'undefined') {
-    return
-  }
-
   if (langCode === 'en' || langCode === 'pt') {
-    localStorage.setItem('typing-game-language', langCode)
+    currentLanguagePreference = langCode
   }
 }
 
