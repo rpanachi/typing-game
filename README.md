@@ -2,6 +2,8 @@
 
 A fun and colorful typing game designed for children, built with Vite and Vue.js.
 
+<img width="2656" height="1582" alt="image" src="https://github.com/user-attachments/assets/fae6d954-15ce-497f-ad36-c5e7ba44f558" />
+
 ## Product Requirements
 
 ### Core Functionality
