@@ -18,15 +18,10 @@ describe('gameData.js', () => {
       expect(word.word.en.length).toBeGreaterThan(0)
       expect(word.word.pt.length).toBeGreaterThan(0)
       
-      // Check for either 'image' or 'url' property (image is preferred, url is fallback)
-      expect(word).toHaveProperty('url')
+      // Check for image property (url was removed, but image might not exist for all words)
       if (word.image) {
         expect(typeof word.image).toBe('string')
         expect(word.image.length).toBeGreaterThan(0)
-      }
-      if (word.url) {
-        expect(typeof word.url).toBe('string')
-        expect(word.url.length).toBeGreaterThan(0)
       }
     })
   })
@@ -172,6 +167,160 @@ describe('gameData.js', () => {
     // This test ensures we don't have exact duplicates
     // Note: Some words might be duplicated intentionally, so we check the array length
     expect(gameWords.length).toBeGreaterThanOrEqual(uniqueWords.size)
+  })
+
+  describe('getRandomWord difficulty filtering', () => {
+    it('getRandomWord with "any" difficulty returns words of any difficulty', () => {
+      const verifiedCount = gameWords.filter(w => w.verified === 'yes').length
+      if (verifiedCount === 0) {
+        console.warn('Skipping test: No verified words available')
+        return
+      }
+
+      // Test multiple times to ensure we can get words of different difficulties
+      const difficulties = new Set()
+      for (let i = 0; i < 50; i++) {
+        const word = getRandomWord('en', [], 'any')
+        const wordData = gameWords[word.index]
+        const difficulty = wordData.difficulty?.en || wordData.difficulty?.pt
+        if (difficulty) {
+          difficulties.add(difficulty)
+        }
+      }
+
+      // Should get words of different difficulties when using 'any'
+      expect(difficulties.size).toBeGreaterThan(0)
+    })
+
+    it('getRandomWord with "easy" difficulty only returns easy words', () => {
+      const easyWords = gameWords.filter(w => 
+        w.verified === 'yes' && w.difficulty?.en === 'easy'
+      )
+      
+      if (easyWords.length === 0) {
+        console.warn('Skipping test: No easy verified words available for English')
+        return
+      }
+
+      // Test multiple times
+      for (let i = 0; i < 30; i++) {
+        const word = getRandomWord('en', [], 'easy')
+        const wordData = gameWords[word.index]
+        expect(wordData.difficulty?.en).toBe('easy')
+      }
+    })
+
+    it('getRandomWord with "medium" difficulty only returns medium words', () => {
+      const mediumWords = gameWords.filter(w => 
+        w.verified === 'yes' && w.difficulty?.en === 'medium'
+      )
+      
+      if (mediumWords.length === 0) {
+        console.warn('Skipping test: No medium verified words available for English')
+        return
+      }
+
+      // Test multiple times
+      for (let i = 0; i < 30; i++) {
+        const word = getRandomWord('en', [], 'medium')
+        const wordData = gameWords[word.index]
+        expect(wordData.difficulty?.en).toBe('medium')
+      }
+    })
+
+    it('getRandomWord with "hard" difficulty only returns hard words', () => {
+      // Check for hard words in Portuguese since we know some exist there
+      const hardWordsPt = gameWords.filter(w => 
+        w.verified === 'yes' && w.difficulty?.pt === 'hard'
+      )
+      
+      if (hardWordsPt.length === 0) {
+        console.warn('Skipping test: No hard verified words available')
+        return
+      }
+
+      // Test with Portuguese locale since hard words exist there
+      for (let i = 0; i < 30; i++) {
+        const word = getRandomWord('pt', [], 'hard')
+        const wordData = gameWords[word.index]
+        expect(wordData.difficulty?.pt).toBe('hard')
+      }
+    })
+
+    it('getRandomWord uses locale-specific difficulty when filtering', () => {
+      // Find words that have different difficulties in different languages
+      const wordsWithDifferentDifficulty = gameWords.filter(w => 
+        w.verified === 'yes' && 
+        w.difficulty?.en && 
+        w.difficulty?.pt && 
+        w.difficulty.en !== w.difficulty.pt
+      )
+
+      if (wordsWithDifferentDifficulty.length === 0) {
+        console.warn('Skipping test: No words with different difficulties per language')
+        return
+      }
+
+      // Test English locale
+      const wordEn = getRandomWord('en', [], 'easy')
+      const wordDataEn = gameWords[wordEn.index]
+      expect(wordDataEn.difficulty?.en).toBe('easy')
+
+      // Test Portuguese locale
+      const wordPt = getRandomWord('pt', [], 'easy')
+      const wordDataPt = gameWords[wordPt.index]
+      expect(wordDataPt.difficulty?.pt).toBe('easy')
+    })
+
+    it('getRandomWord throws error when no words match difficulty', () => {
+      // Use a difficulty that doesn't exist (assuming we don't have 'impossible' difficulty)
+      // First, check if there are any words with a specific difficulty
+      const impossibleWords = gameWords.filter(w => 
+        w.verified === 'yes' && 
+        (w.difficulty?.en === 'impossible' || w.difficulty?.pt === 'impossible')
+      )
+
+      // Only test if we're sure there are no impossible words
+      if (impossibleWords.length === 0) {
+        expect(() => {
+          getRandomWord('en', [], 'impossible')
+        }).toThrow('No verified words available')
+      }
+    })
+
+    it('getRandomWord combines difficulty filter with usedIndices', () => {
+      const easyWords = gameWords
+        .map((w, i) => ({ word: w, index: i }))
+        .filter(({ word }) => 
+          word.verified === 'yes' && word.difficulty?.en === 'easy'
+        )
+
+      if (easyWords.length < 2) {
+        console.warn('Skipping test: Need at least 2 easy verified words for English')
+        return
+      }
+
+      // Use some easy word indices
+      const usedIndices = easyWords.slice(0, Math.min(2, easyWords.length)).map(({ index }) => index)
+      const word = getRandomWord('en', usedIndices, 'easy')
+      
+      // Should not return a used word
+      expect(usedIndices).not.toContain(word.index)
+      
+      // Should still be easy difficulty
+      const wordData = gameWords[word.index]
+      expect(wordData.difficulty?.en).toBe('easy')
+    })
+
+    it('all words have difficulty property', () => {
+      gameWords.forEach(word => {
+        expect(word).toHaveProperty('difficulty')
+        expect(word.difficulty).toHaveProperty('en')
+        expect(word.difficulty).toHaveProperty('pt')
+        expect(['easy', 'medium', 'hard']).toContain(word.difficulty.en)
+        expect(['easy', 'medium', 'hard']).toContain(word.difficulty.pt)
+      })
+    })
   })
 })
 

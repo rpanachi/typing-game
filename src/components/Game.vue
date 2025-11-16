@@ -61,6 +61,10 @@ export default {
     language: {
       type: String,
       default: 'en'
+    },
+    difficulty: {
+      type: String,
+      default: 'any'
     }
   },
   emits: ['back-to-menu'],
@@ -76,6 +80,11 @@ export default {
   watch: {
     language() {
       // Reset history and restart game when language changes
+      this.usedWordIndices = []
+      this.startNewRound()
+    },
+    difficulty() {
+      // Reset history and restart game when difficulty changes
       this.usedWordIndices = []
       this.startNewRound()
     }
@@ -108,8 +117,8 @@ export default {
     },
     startNewRound() {
       try {
-        // Get a new word that hasn't been used yet
-        const newWord = getRandomWord(this.language, this.usedWordIndices)
+        // Get a new word that hasn't been used yet, filtered by difficulty
+        const newWord = getRandomWord(this.language, this.usedWordIndices, this.difficulty)
         
         // Add the word's index to the history
         if (newWord.index !== undefined) {

@@ -3,13 +3,16 @@
     <MainMenu 
       v-if="currentView === 'menu'" 
       :current-language="currentLanguage"
+      :selected-difficulty="selectedDifficulty"
       @start-game="startGame"
       @show-instructions="showInstructions"
       @change-language="changeLanguage"
+      @change-difficulty="changeDifficulty"
     />
     <Game 
       v-else-if="currentView === 'game'"
       :language="currentLanguage"
+      :difficulty="selectedDifficulty"
       @back-to-menu="backToMenu"
     />
     <HowToPlay 
@@ -36,7 +39,8 @@ export default {
   data() {
     return {
       currentView: 'menu',
-      currentLanguage: getCurrentLanguage()
+      currentLanguage: getCurrentLanguage(),
+      selectedDifficulty: 'any'
     }
   },
   methods: {
@@ -52,6 +56,9 @@ export default {
     changeLanguage(langCode) {
       this.currentLanguage = langCode
       saveLanguagePreference(langCode)
+    },
+    changeDifficulty(difficulty) {
+      this.selectedDifficulty = difficulty
     }
   }
 }

@@ -11,6 +11,11 @@ export const translations = {
     newGame: 'New Game',
     howToPlay: 'How to Play',
     language: 'Language:',
+    difficulty: 'Difficulty:',
+    difficultyAny: 'Any',
+    difficultyEasy: 'Easy',
+    difficultyMedium: 'Medium',
+    difficultyHard: 'Hard',
     
     // HowToPlay component
     instructionsTitle: 'How to Play',
@@ -34,6 +39,11 @@ export const translations = {
     newGame: 'Novo Jogo',
     howToPlay: 'Como Jogar',
     language: 'Idioma:',
+    difficulty: 'Dificuldade:',
+    difficultyAny: 'Qualquer',
+    difficultyEasy: 'Fácil',
+    difficultyMedium: 'Médio',
+    difficultyHard: 'Difícil',
     
     // HowToPlay component
     instructionsTitle: 'Como Jogar',

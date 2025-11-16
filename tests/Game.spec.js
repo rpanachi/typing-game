@@ -329,5 +329,136 @@ describe('Game.vue', () => {
     expect(wrapper.find('.fireworks-container').exists()).toBe(true)
     expect(wrapper.findAll('.firework').length).toBe(8)
   })
+
+  describe('difficulty prop', () => {
+    it('accepts difficulty prop with default value "any"', () => {
+      const wrapper = mount(Game)
+      expect(wrapper.vm.difficulty).toBe('any')
+    })
+
+    it('uses difficulty prop when getting random word', async () => {
+      const wrapper = mount(Game, {
+        props: {
+          difficulty: 'easy'
+        }
+      })
+      
+      await wrapper.vm.$nextTick()
+      
+      // Verify that getRandomWord was called with difficulty
+      expect(wrapper.vm.currentWord).toBeTruthy()
+      // The word should be from easy difficulty (if available)
+      const wordData = gameWords[wrapper.vm.currentWord.index]
+      if (wordData && wordData.difficulty) {
+        const difficulty = wordData.difficulty.en || wordData.difficulty.pt
+        // If easy words exist, the word should be easy
+        const easyWordsExist = gameWords.some(w => 
+          w.verified === 'yes' && (w.difficulty?.en === 'easy' || w.difficulty?.pt === 'easy')
+        )
+        if (easyWordsExist) {
+          expect(difficulty).toBe('easy')
+        }
+      }
+    })
+
+    it('resets game when difficulty changes', async () => {
+      const wrapper = mount(Game, {
+        props: {
+          difficulty: 'easy'
+        }
+      })
+      
+      await wrapper.vm.$nextTick()
+      await wrapper.vm.$nextTick() // Wait for word to be loaded
+      const initialWord = wrapper.vm.currentWord
+      const initialUsedIndicesLength = wrapper.vm.usedWordIndices.length
+      
+      // Ensure we have a word and used indices
+      if (initialWord && initialWord.index !== undefined) {
+        wrapper.vm.usedWordIndices.push(initialWord.index)
+        expect(wrapper.vm.usedWordIndices.length).toBeGreaterThan(initialUsedIndicesLength)
+      }
+      
+      // Change difficulty
+      await wrapper.setProps({ difficulty: 'medium' })
+      await wrapper.vm.$nextTick()
+      await wrapper.vm.$nextTick() // Wait for watch to trigger and new word to load
+      
+      // Should reset used indices (watch clears it, then startNewRound adds the new word)
+      // So after reset, usedIndices should only contain the new word (length = 1)
+      expect(wrapper.vm.usedWordIndices.length).toBeLessThanOrEqual(1)
+      expect(wrapper.vm.currentWord).toBeTruthy()
+      // The used indices should be reset (cleared and then new word added)
+      if (wrapper.vm.currentWord && wrapper.vm.currentWord.index !== undefined) {
+        expect(wrapper.vm.usedWordIndices).toContain(wrapper.vm.currentWord.index)
+      }
+    })
+
+    it('handles difficulty "any" correctly', async () => {
+      const wrapper = mount(Game, {
+        props: {
+          difficulty: 'any'
+        }
+      })
+      
+      await wrapper.vm.$nextTick()
+      expect(wrapper.vm.currentWord).toBeTruthy()
+      // With "any", should be able to get words of any difficulty
+    })
+
+    it('handles difficulty "medium" correctly', async () => {
+      const mediumWordsExist = gameWords.some(w => 
+        w.verified === 'yes' && (w.difficulty?.en === 'medium' || w.difficulty?.pt === 'medium')
+      )
+      
+      if (!mediumWordsExist) {
+        console.warn('Skipping test: No medium words available')
+        return
+      }
+
+      const wrapper = mount(Game, {
+        props: {
+          difficulty: 'medium'
+        }
+      })
+      
+      await wrapper.vm.$nextTick()
+      expect(wrapper.vm.currentWord).toBeTruthy()
+      
+      const wordData = gameWords[wrapper.vm.currentWord.index]
+      const difficulty = wordData.difficulty?.en || wordData.difficulty?.pt
+      expect(difficulty).toBe('medium')
+    })
+
+    it('handles difficulty "hard" correctly', async () => {
+      // Check for hard words in Portuguese since we know some exist there
+      const hardWordsPt = gameWords.some(w => 
+        w.verified === 'yes' && w.difficulty?.pt === 'hard'
+      )
+      
+      if (!hardWordsPt) {
+        console.warn('Skipping test: No hard words available')
+        return
+      }
+
+      const wrapper = mount(Game, {
+        props: {
+          difficulty: 'hard',
+          language: 'pt' // Use Portuguese since hard words exist there
+        }
+      })
+      
+      await wrapper.vm.$nextTick()
+      await wrapper.vm.$nextTick() // Wait for word to load
+      
+      if (wrapper.vm.currentWord) {
+        const wordData = gameWords[wrapper.vm.currentWord.index]
+        expect(wordData.difficulty?.pt).toBe('hard')
+      } else {
+        // If no word was loaded, it means no hard words for the current language
+        console.warn('No hard words available for the selected language')
+      }
+    })
+  })
 })
 

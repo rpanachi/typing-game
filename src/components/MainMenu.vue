@@ -1,7 +1,8 @@
 <template>
   <div class="main-menu">
     <div class="menu-container">
-      <h1 class="game-title">🎮 Kids Typing Game 🎮</h1>
+      <h1 class="game-title">TYPING GAME</h1>
+      <h2 class="game-title">⌨️ ⌨️ ⌨️ ⌨️ ⌨️</h2>
       
       <div class="language-selector">
         <label for="language-select" class="language-label">🌐 {{ t('language') }}</label>
@@ -13,6 +14,21 @@
         >
           <option value="en">English</option>
           <option value="pt">Português</option>
+        </select>
+      </div>
+      
+      <div class="difficulty-selector">
+        <label for="difficulty-select" class="difficulty-label">⚡ {{ t('difficulty') }}</label>
+        <select 
+          id="difficulty-select" 
+          class="difficulty-select"
+          :value="selectedDifficulty"
+          @change="handleDifficultyChange"
+        >
+          <option value="any">{{ t('difficultyAny') }}</option>
+          <option value="easy">{{ t('difficultyEasy') }}</option>
+          <option value="medium">{{ t('difficultyMedium') }}</option>
+          <option value="hard">{{ t('difficultyHard') }}</option>
         </select>
       </div>
       
@@ -37,15 +53,22 @@ export default {
     currentLanguage: {
       type: String,
       default: 'en'
+    },
+    selectedDifficulty: {
+      type: String,
+      default: 'any'
     }
   },
-  emits: ['start-game', 'show-instructions', 'change-language'],
+  emits: ['start-game', 'show-instructions', 'change-language', 'change-difficulty'],
   methods: {
     t(key) {
       return translate(key, this.currentLanguage)
     },
     handleLanguageChange(event) {
       this.$emit('change-language', event.target.value)
+    },
+    handleDifficultyChange(event) {
+      this.$emit('change-difficulty', event.target.value)
     }
   }
 }
@@ -79,7 +102,8 @@ export default {
   font-weight: bold;
 }
 
-.language-selector {
+.language-selector,
+.difficulty-selector {
   margin-bottom: 30px;
   display: flex;
   flex-direction: column;
@@ -87,13 +111,15 @@ export default {
   gap: 10px;
 }
 
-.language-label {
+.language-label,
+.difficulty-label {
   font-size: 1rem;
   color: #666;
   font-weight: 500;
 }
 
-.language-select {
+.language-select,
+.difficulty-select {
   padding: 10px 20px;
   font-size: 1rem;
   border: 2px solid #667eea;
@@ -106,13 +132,15 @@ export default {
   min-width: 150px;
 }
 
-.language-select:hover {
+.language-select:hover,
+.difficulty-select:hover {
   background: #f0f0f0;
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
 }
 
-.language-select:focus {
+.language-select:focus,
+.difficulty-select:focus {
   outline: none;
   border-color: #764ba2;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);

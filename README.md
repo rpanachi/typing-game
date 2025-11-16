@@ -1,4 +1,4 @@
-# Kids Typing Game
+# Typing Game
 
 A fun and colorful typing game designed for children, built with Vite and Vue.js.
 
@@ -8,6 +8,7 @@ A fun and colorful typing game designed for children, built with Vite and Vue.js
 
 ### Core Functionality
 - **Main Menu**: Display game title with "New Game" and "How to Play" buttons
+- **Difficulty Selection**: Choose difficulty level (Any, Easy, Medium, Hard) to filter words
 - **Game Flow**: Display random images (animals, objects, food, vegetables) with letter placeholders
 - **Letter-by-Letter Input**: Players type letters one at a time in sequence
 - **Current Letter Highlight**: Visual indicator shows which letter to type next
@@ -21,6 +22,7 @@ A fun and colorful typing game designed for children, built with Vite and Vue.js
 - **Supported Languages**: English and Portuguese
 - **Full Translation**: All UI text (including congratulations, instructions) changes with language
 - **Word Mapping**: Words stored as locale map (en/pt) for each entry
+- **In-Memory Storage**: Language preference stored in memory (no localStorage dependency)
 
 ### User Experience
 - **Kid-Friendly Design**: Colorful, clean, and visually appealing interface
@@ -35,6 +37,8 @@ A fun and colorful typing game designed for children, built with Vite and Vue.js
 - **Invalid Image Handling**: Images marked invalid if confidence < 70%, no matching object found, or 404 error
 - **Game Filtering**: Game only uses verified images (verified: 'yes')
 - **Image Replacement**: Automated Unsplash API search for invalid images using English word as search term
+- **Difficulty Levels**: Each word has difficulty levels (easy, medium, hard) for both English and Portuguese
+- **Difficulty Filtering**: Words can be filtered by difficulty level in the game
 
 ## Features
 
@@ -44,7 +48,9 @@ A fun and colorful typing game designed for children, built with Vite and Vue.js
 - ⌨️ Letter-by-letter typing practice
 - 🎉 Celebration animations when words are completed
 - 🌍 Multi-language support (English and Portuguese)
+- ⚡ Difficulty selection (Any, Easy, Medium, Hard)
 - 🔄 No word repetition until all words are shown
+- 💾 In-memory storage (no localStorage dependency)
 
 ## Getting Started
 
@@ -76,12 +82,14 @@ npm run preview
 
 ## How to Play
 
-1. Click "New Game" to start playing
-2. Look at the image displayed
-3. Type the letters one by one to guess the word
-4. The current letter to type is highlighted
-5. When you complete a word, you'll see a congratulations message with fireworks
-6. A new word will appear automatically after 5 seconds
+1. Select your preferred language (English or Portuguese)
+2. Choose a difficulty level (Any, Easy, Medium, or Hard)
+3. Click "New Game" to start playing
+4. Look at the image displayed
+5. Type the letters one by one to guess the word
+6. The current letter to type is highlighted
+7. When you complete a word, you'll see a congratulations message with fireworks
+8. A new word will appear automatically after 5 seconds
 
 ## Local Development
 
@@ -208,6 +216,36 @@ npm run images:update -- --batch=20
 - After generating images, mark them as ready for verification
 - Quick status check of local image files
 
+#### 4. Image Summary (`summarize-images.js`)
+
+Displays a summary of all images in the game data, including verification status and difficulty distribution.
+
+**Usage:**
+```bash
+npm run images:summary
+```
+
+**Output:**
+- Total number of images
+- Verification status counts (Verified, Invalid, Pending)
+- Difficulty distribution by language (Easy, Medium, Hard for English and Portuguese)
+- Only verified images are counted in difficulty statistics
+
+**Example Output:**
+```
+📊 Image Summary
+
+- Total images: 77
+- Verified: 38
+- Invalid: 4
+- Pending: 35
+
+Difficulty counts (verified only):
+- Easy, en: 20, pt: 11
+- Medium, en: 18, pt: 26
+- Hard, en: 0, pt: 1
+```
+
 ### Script Workflow
 
 A typical workflow for managing images:
@@ -225,6 +263,11 @@ A typical workflow for managing images:
 3. **Verify generated images**:
    ```bash
    npm run images:verify
+   ```
+
+4. **View summary** of all images:
+   ```bash
+   npm run images:summary
    ```
 
 ### Batch Processing
